@@ -3,6 +3,7 @@ package com.xizang.gui;
 
 import com.xizang.data.WaterBean;
 import com.xizang.utils.DataUtils;
+import com.xizang.utils.DateUtils;
 import com.xizang.utils.ExeclUtils;
 
 import javax.swing.*;
@@ -23,9 +24,9 @@ public class Login extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1L;
 
-    private static int count = 40;
-    JPanel jp1, jp2, jp3,top;
-    JLabel jlb1, jlb2;
+    private static int count = 0;
+    JPanel jp1, jp2, jp3, jp4, top;
+    JLabel jlb1, jlb2, jlb3;
     JButton jb1, jb2;
     JTextField jtf1;
     JTextField jpf1;
@@ -40,14 +41,17 @@ public class Login extends JFrame implements ActionListener {
         jp1 = new JPanel();
         jp2 = new JPanel();
         jp3 = new JPanel();
+        jp4 = new JPanel();
         top.setBackground( new Color(225,225,150));
         jp1.setBackground(new Color(225,225,140));
         jp2.setBackground(new Color(225,225,150));
         jp3.setBackground(new Color(225,225,130));
+        jp4.setBackground(new Color(225,225,130));
 
 
         jlb1 = new JLabel("原始数据：");
         jlb2 = new JLabel("核验数据：");
+        jlb3 = new JLabel("等待...");
 
         jb1 = new JButton("计算");
         jb2 = new JButton("清空");
@@ -66,7 +70,7 @@ public class Login extends JFrame implements ActionListener {
         jpf1.setTransferHandler(getTransferHandler(jpf1));
         jpf1.setPreferredSize(new Dimension (45,40));
 
-        this.setLayout(new GridLayout(4, 1));
+        this.setLayout(new GridLayout(5, 1));
 
         // 加入各个组件		第一个部分是用户名：空白的test
         jp1.add(jlb1);
@@ -78,14 +82,16 @@ public class Login extends JFrame implements ActionListener {
         jp3.add(jb1);
         jp3.add(jb2);
 
+        jp4.add(jlb3);
         // 加入到JFrame
         this.add(top);
         this.add(jp1);
         this.add(jp2);
         this.add(jp3);
+        this.add(jp4);
 
 
-        this.setSize(450,300);
+        this.setSize(450,400);
 
         this.setLocation(300, 200);
         this.setTitle("数据处理");
@@ -98,19 +104,26 @@ public class Login extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if(source==jb1) {
+        if(source==jb1&&count==0) {
+            count = -1;
+            jlb3.setText("计算中......");
             String dataPath = jtf1.getText().trim();
             String checkPath = jpf1.getText().trim();
-            String outPath = dataPath.replace(".xlsx", "——计算结果" + System.currentTimeMillis() + ".xlsx");
+            String outPath = dataPath.replace(".xlsx", "——结果" + DateUtils.getToday() + ".xlsx");
 
             List<List<String>> lists = ExeclUtils.readExcel(dataPath.trim());
-            List<List<WaterBean>> result = DataUtils.parseData(lists);
+            List<List<String>> check = ExeclUtils.readExcel(checkPath.trim());
+            List<List<WaterBean>> result = DataUtils.parseData(lists, check);
             ExeclUtils.writeExcel(outPath, result);
+            jlb3.setText("等待...");
+            count = 0;
+
         }
 
         if (source == jb2) {
             jtf1.setText("");
             jpf1.setText("");
+            count = 0;
         }
 
     }

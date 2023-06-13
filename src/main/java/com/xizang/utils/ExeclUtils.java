@@ -28,10 +28,15 @@ import static com.xizang.utils.DataUtils.show;
  */
 public class ExeclUtils{
     public static void main(String[] args) {
+        String str = "/Users/yangchong/Desktop/bb_new/aa.xlsx";
+        List<List<String>> lists = readExcel(str);
+        lists.forEach(x -> x.forEach(System.out::println));
+    }
+    public static void test_bb() {
         String str = "/Users/yangchong/Desktop/bb_new/bb.xlsx";
         String str1 = "/Users/yangchong/Desktop/bb_new/bb_d.xlsx";
         List<List<String>> lists = readExcel(str);
-        writeExcel(str1, parseData(lists));
+       // writeExcel(str1, parseData(lists));
     }
 
     public static void writeExcel(String path, List<List<WaterBean>> data) {
@@ -45,17 +50,38 @@ public class ExeclUtils{
 
             //2.创建sheet页
             Sheet sheet = workbook.createSheet("结果");
+            CellStyle cellStyle = workbook.createCellStyle();
+            cellStyle.setAlignment(HorizontalAlignment.CENTER);
             //初始化表头
-            int index = 0;
+            Row row0 = sheet.createRow(0);
+            Cell cell = row0.createCell(0);
+            cell.setCellStyle(cellStyle); cell.setCellValue("代码");
+            Cell cell1 = row0.createCell(1);
+            cell1.setCellStyle(cellStyle); cell1.setCellValue("名称");
+            Cell cell2 = row0.createCell(2);
+            cell2.setCellStyle(cellStyle); cell2.setCellValue("时间");
+            Cell cell3 = row0.createCell(3);
+            cell3.setCellStyle(cellStyle); cell3.setCellValue("纸上水位（m）");
+            Cell cell4 = row0.createCell(4);
+            cell4.setCellStyle(cellStyle); cell4.setCellValue("校核水尺水位（m）");
+            Cell cell5 = row0.createCell(5);
+            cell5.setCellStyle(cellStyle); cell5.setCellValue("水位改正数（m）");
+            Cell cell6 = row0.createCell(6);
+            cell6.setCellStyle(cellStyle); cell6.setCellValue("改正后水数（m）");
+            int index = 1;
             for (int i = 0; i < data.size(); i++) {
                 List<WaterBean> waterBeans = data.get(i);
                 for (int j = 0; j < waterBeans.size(); j++) {
                     WaterBean bean = waterBeans.get(j);
                     Row row = sheet.createRow(index);
+
                     row.createCell(0).setCellValue(bean.getCode());
                     row.createCell(1).setCellValue(bean.getName());
                     row.createCell(2).setCellValue(bean.getTime().format(DateUtils.normalFormatter));
-                    row.createCell(3).setCellValue(bean.getHigh());
+                    setCell(row.createCell(3),bean.getHigh());
+                    setCell(row.createCell(4),bean.getCheck());
+                    setCell(row.createCell(5),bean.getSub());
+                    setCell(row.createCell(6),bean.getNewHigh());
 
                     index++;
 
@@ -70,6 +96,14 @@ public class ExeclUtils{
         }
     }
 
+    public static void setCell(Cell cell, String data) {
+        cell.setCellValue(data);
+    }
+    public static void setCell(Cell cell, double data) {
+        if (data != 0D) {
+            cell.setCellValue(String.valueOf(data));
+        }
+    }
     public static List<List<String>> readExcel(String path) {
         List<List<String>> datas = new ArrayList<>();
 
@@ -121,7 +155,7 @@ public class ExeclUtils{
             return String.valueOf(xssfCell.getBooleanCellValue());
         } else if (xssfCell.getCellType() == xssfCell.CELL_TYPE_NUMERIC) {
             if (HSSFDateUtil.isCellDateFormatted(xssfCell)) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date date = xssfCell.getDateCellValue();
                 return sdf.format(date);
 

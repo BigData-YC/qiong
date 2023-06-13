@@ -18,6 +18,19 @@ public class WaterBean {
     private LocalDateTime time;
     private double high;
 
+    private double check;
+
+    private double sub;
+
+    private double newHigh;
+
+    public WaterBean(String name, String code, LocalDateTime time, double high) {
+        this.name = name;
+        this.code = code;
+        this.time = time;
+        this.high = high;
+    }
+
     @Override
     public String toString() {
         return "WaterBean{" +

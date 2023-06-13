@@ -37,7 +37,7 @@ public class DateUtils {
     }
 
     public static String getToday(){
-        return getToday(formatter);
+        return getToday(normalFormatter);
     }
 
     public static String getYesterday(){
